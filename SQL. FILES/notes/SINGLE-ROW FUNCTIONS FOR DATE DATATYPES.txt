@@ -1,0 +1,215 @@
+/* SINGLE-ROW FUNCTIONS FOR DATE DATATYPES */
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for date references                                             */
+/*   CURRENT_DATE       Returns the current date from the database session   */
+/*   SYSDATE            Returns the current date from the database server's  */
+/*                      operating system                                     */   
+/*   EXTRACT            Extacts a specifice date component (e.g., year,      */
+/*                      month, day, minute, second) from a date value        */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   CURRENT_DATE       This function takes no parameters                    */
+/*   SYSDATE            This function takes no parameters                    */
+/*   EXTRACT( { YEAR | MONTH | DAY | HOUR | MINUTE | SECOND } FROM dExp )    */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   YEAR      [optional] Indicator to extract the year                      */
+/*   MONTH     [optional] Indicator to extract the month                     */
+/*   DAY       [optional] Indicator to extract the day                       */
+/*   HOUR      [optional] Indicator to extract the hour                      */
+/*   MINUTE    [optional] Indicator to extract the minute                    */
+/*   SECOND    [optional] Indicator to extract the second                    */
+/*   dExp      A date expression                                             */
+/*   Note: one, and only one, of the indicator arguments must be provided    */
+/*                                                                           */
+/*****************************************************************************/
+SELECT CURRENT_DATE, SYSDATE
+FROM   DUAL;
+
+SELECT emp_lname, hire_date,
+       EXTRACT(YEAR FROM hire_date) AS "Hire Year",
+       EXTRACT(MONTH FROM hire_date) AS "Hire Month",
+       EXTRACT(DAY FROM hire_date) AS "Hire Day"
+FROM   rbc_employees;
+
+SELECT emp_lname, hire_date
+FROM   rbc_employees
+WHERE  EXTRACT(MONTH FROM hire_date) > 6; 
+
+SELECT emp_lname, hire_date
+FROM   rbc_employees
+ORDER BY EXTRACT(MONTH FROM hire_date), emp_lname;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for date calculations                                           */
+/*   ADD_MONTHS         Adds a number of months to a date.  If the date      */
+/*                      provided is the last day of the month, the returned  */
+/*                      date is also the last day of the month.  e.g.,       */
+/*                      adding 1 month to 29-FEB-16 will equal 31-MAR-16.    */
+/*                      If resulting date has fewer days in month than       */
+/*                      original date then result is last day of that month  */
+/*                      e.g., adding 1 month to 31-JAN-16 gives 29-FEB-16    */
+/*   MONTHS_BETWEEN     Returns the number of months between two dates.      */
+/*                      Most recent date goes in dExp1.                      */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   ADD_MONTHS(dExp1,months)                                                */
+/*   MONTHS_BETWEEN(dExp1,dExp2)                                             */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   dExp1   A date expression                                               */
+/*   dExp2   A date expression                                               */
+/*   months  number of months                                                */
+/*                                                                           */
+/*****************************************************************************/
+SELECT ADD_MONTHS('1-JAN-2020',1)
+FROM   DUAL;
+
+SELECT emp_lname, hire_date,
+       ADD_MONTHS(hire_date,120)
+FROM   rbc_employees;
+
+SELECT emp_lname, hire_date
+FROM   rbc_employees
+WHERE  ADD_MONTHS(hire_date,120) < CURRENT_DATE;
+
+SELECT MONTHS_BETWEEN('01-DEC-2000','01-JAN-2000')
+FROM   DUAL;
+
+SELECT emp_lname, hire_date,
+       MONTHS_BETWEEN(hire_date,birth_date)/12 AS "Hire Age"
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, hire_date
+FROM   rbc_employees
+WHERE  MONTHS_BETWEEN(CURRENT_DATE,hire_date) >= 60;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for date approximations                                         */
+/*   ROUND      Rounds a date to the specified number of decimal places      */
+/*   TRUNC      Truncates a date to the specified number of decimal places   */
+/*   NEXT_DAY   Returns the date of the first weekday after date specified   */
+/*   LAST_DAY   Returns the last day of the month of a date                  */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   ROUND(dExp, format)                                                     */
+/*   TRUNC(dExp, format)                                                     */
+/*   NEXT_DAY(dExp, weekday)                                                 */
+/*   LAST_DAY(dExp)
+/*                                                                           */
+/* Parameters:                                                               */
+/*   dExp       A date expression                                            */
+/*   format     See table 1 below                                            */
+/*   weekday    See table 2 below                                            */
+/*                                                                           */
+/*   1) Format                     Description                               */
+/*   ----------------------------  ----------------------------------------  */
+/*   CC, SCC                       Century, with or without minus sign (BC)  */
+/*   [S]YYYY, [S]YEAR, YYY, YY, Y  Year (in various appearances)             */
+/*   IYYY, IYY, IY, I              ISO year                                  */
+/*   Q                             Quarter                                   */
+/*   MONTH, MON, MM, RM            Month (full, abbreviated, numeric, Roman) */
+/*   IW, WW (ISO)                  Week number                               */
+/*   W                             Day of the week                           */
+/*   DDD, DD, J                    Day (of the year/of the month/Julian day) */
+/*   DAY, DY, D                    Closest Sunday                            */
+/*   HH, HH12, HH24                Hours                                     */
+/*   MI                            Minutes                                   */
+/*                                                                           */
+/*   2) Weekday                    Description                               */
+/*   ----------------------------  ----------------------------------------  */
+/*   SUNDAY, SUN                   The first Sunday later than a date        */
+/*   MONDAY, MON                   The first Monday later than a date        */
+/*   TUESDAY, TUE                  The first Tuesday later than a date       */
+/*   WEDNESDAY, WED                The first Wednesday later than a date     */
+/*   THURSDAY, THUR                The first Thursday later than a date      */
+/*   FRIDAY, FRI                   The first Friday later than a date        */
+/*   SATURDAY, SAT                 The first Saturday later than a date      */
+/*                                                                           */
+/*****************************************************************************/
+SELECT hire_date,
+       ROUND(hire_date,'YEAR'),
+       ROUND(hire_date,'YYYY'),
+       ROUND(hire_date,'YYY'),
+       ROUND(hire_date,'YY'),
+       ROUND(hire_date,'Y')
+FROM   rbc_employees;
+
+SELECT hire_date,
+       ROUND(hire_date,'Q'),
+       ROUND(hire_date,'MONTH'),
+       ROUND(hire_date,'WW'),
+       ROUND(hire_date,'DAY')
+FROM   rbc_employees;
+
+SELECT hire_date,
+       TRUNC(hire_date,'YEAR'),
+       TRUNC(hire_date,'YYYY'),
+       TRUNC(hire_date,'YYY'),
+       TRUNC(hire_date,'YY'),
+       TRUNC(hire_date,'Y')
+FROM   rbc_employees;
+
+SELECT hire_date,
+       TRUNC(hire_date,'Q'),
+       TRUNC(hire_date,'MONTH'),
+       TRUNC(hire_date,'WW'),
+       TRUNC(hire_date,'DAY')
+FROM   rbc_employees;
+
+SELECT '29-AUG-2020',                  /* a Saturday  */
+       NEXT_DAY('29-AUG-2020','SUN'),  /* a Sunday    */
+       NEXT_DAY('29-AUG-2020','WED'),  /* a Wednesday */
+       NEXT_DAY('29-AUG-2020','SAT'),  /* a Saturday  */
+       NEXT_DAY('29-AUG-2020','SUN')   /* a Sunday    */
+FROM   DUAL;
+
+SELECT '14-FEB-2020',
+       LAST_DAY('14-FEB-2020'),
+       '14-FEB-2019',
+       LAST_DAY('14-FEB-2019')
+FROM   DUAL;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for working with NULLs                                          */
+/*   NULLIF    Compares two expressions.  Returns NULL if equal, otherwise   */
+/*             it returns the first expression.                              */
+/*   NVL       Provides a meaningful alternative to a NULL value             */
+/*   NVL2      Extention of NVL.  In addition to providing an alternative to */
+/*             a null value, NVL2 also provieds alternatives to non-NULL     */
+/*             values                                                        */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   NULLIF(exp1, exp2a)                                                     */
+/*   NVL(exp1, exp2b)                                                        */
+/*   NVL2(exp1, exp2c, exp3)                                                 */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   exp1     First value to compare.  Must be same datatype as exp2.        */
+/*   exp2a    Second value to compare.  Must be same datatype as exp1.       */
+/*   exp2b    An expression to return when exp1 is NULL                      */
+/*   exp2c    An expression to return wiht exp1 is not NULL                  */
+/*   exp3     An expression to return when exp1 is NULL                      */
+/*                                                                           */
+/*****************************************************************************/
+SELECT NULLIF('01-JAN-2020','01-JAN-2020') AS Same,
+       NULLIF('01-JAN-2020','31-MAR-2020') AS Different
+FROM   DUAL;
+
+SELECT NVL('01-JAN-2020','31-OCT-2020') AS "Don't Replace",
+       NVL(NULL,'31-OCT-2020') AS "Replace"
+FROM   DUAL;
+
+SELECT NVL2('01-JAN-2020','Not a Null!','This is a Null!')
+FROM   DUAL;
+
+SELECT NVL2(NULL,'Not a Null!','This is a Null!')
+FROM   DUAL;
+

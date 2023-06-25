@@ -1,0 +1,134 @@
+/* SINGLE-ROW FUNCTIONS FOR NUMERIC DATATYPES */
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for mathematical operations                                     */
+/*   ABS         Returns the absolute values of a numeric expression         */
+/*   MOD         Returns the remainder of a dividend divided by a divisor    */
+/*   POWER       Returns a number raised to the power of another number      */
+/*   REMAINDER   Returns the remainder of a dividend divided by a divisor.   */
+/*               Similar to MOD, except it uses ROUND in its formula instead */
+/*               of FLOOR.                                                   */
+/*   SIGN        Returns the sign of a number (neg = -1, zero = 0, pos = +1) */
+/*   SQRT        Returns the square root of a non-negative number            */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   ABS(nExp1)                                                              */
+/*   MOD(nExp1, nExp2)                                                       */
+/*   POWER(nExp1, nExp2)                                                     */
+/*   REMAINDER(nExp1, nExp2)                                                 */
+/*   SIGN(nExp1)                                                             */
+/*   SQRT(nExp1)                                                             */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   nExp1   A numeric expression                                            */
+/*   nExp2   A numeric expression                                            */
+/*                                                                           */
+/*****************************************************************************/
+SELECT ABS(-4), ABS(0), ABS(4)
+FROM   DUAL;
+
+SELECT MOD(-4,3), MOD(0,3), MOD(4,3)
+FROM   DUAL;
+
+SELECT POWER(-4,3), POWER(0,3), POWER(4,3)
+FROM   DUAL;
+
+SELECT REMAINDER(-4,3), REMAINDER(0,3), REMAINDER(4,3)
+FROM   DUAL;
+
+SELECT SIGN(-4), SIGN(0), SIGN(4)
+FROM   DUAL;
+
+SELECT SQRT(0), SQRT(4)
+FROM   DUAL;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for approximating numbers                                       */
+/*   ROUND   Rounds a number to the specified number of decimal places       */
+/*   TRUNC   Truncates a number to the specified number of decimal places    */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   ROUND(nExp, dec)                                                        */
+/*   TRUNC(nExp, dec)                                                        */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   nExp    A numeric expression                                            */
+/*   dec     The number of decimal places. Positive numbers indicate to the  */
+/*           right of the decimal, negative number indicate to the left      */
+/*                                                                           */
+/*****************************************************************************/
+SELECT 1234.5678,
+       ROUND(1234.5678,3), 
+       ROUND(1234.5678,2), 
+       ROUND(1234.5678,1), 
+       ROUND(1234.5678,0), 
+       ROUND(1234.5678,-1), 
+       ROUND(1234.5678,-2), 
+       ROUND(1234.5678,-3)
+FROM   DUAL;
+
+SELECT 1234.5678,
+       TRUNC(1234.5678,3), 
+       TRUNC(1234.5678,2), 
+       TRUNC(1234.5678,1), 
+       TRUNC(1234.5678,0), 
+       TRUNC(1234.5678,-1), 
+       TRUNC(1234.5678,-2), 
+       TRUNC(1234.5678,-3)
+FROM   DUAL;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for working with NULLs                                          */
+/*   NULLIF    Compares two expressions.  Returns NULL if equal, otherwise   */
+/*             it returns the first expression.                              */
+/*   NVL       Provides a meaningful alternative to a NULL value             */
+/*   NVL2      Extention of NVL.  In addition to providing an alternative to */
+/*             a null value, NVL2 also provides alternatives to non-NULL     */
+/*             values                                                        */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   NULLIF(exp1, exp2a)                                                     */
+/*   NVL(exp1, exp2b)                                                        */
+/*   NVL2(exp1, exp2c, exp3)                                                 */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   exp1     First value to compare.  Must be same datatype as exp2.        */
+/*   exp2a    Second value to compare.  Must be same datatype as exp1.       */
+/*   exp2b    An expression to return when exp1 is NULL                      */
+/*   exp2c    An expression to return when exp1 is not NULL                  */
+/*   exp3     An expression to return when exp1 is NULL                      */
+/*                                                                           */
+/*****************************************************************************/
+
+SELECT hourly_wage,
+       NULLIF(hourly_wage,9.00)
+FROM   rbc_employees;
+
+/* Valid, but confusing                                                 */
+SELECT emp_lname, salary, hourly_wage,
+       NVL(salary,0)
+FROM   rbc_employees;
+
+/* Error because Oracle tries to implicitly convert exp1 to a string    */
+SELECT emp_lname, salary, hourly_wage,
+       NVL(salary,'hourly')
+FROM   rbc_employees;
+
+/* A bit more complex                                                   */
+SELECT emp_lname, salary, hourly_wage,
+       NVL(salary,hourly_wage*2000) AS "Annual Pay"
+FROM   rbc_employees;
+
+SELECT referred_by,
+       NVL2(referred_by,'Was referred','Not referred by anyone')
+FROM   rbc_employees;
+
+SELECT emp_lname, salary, hourly_wage,
+       NVL2(salary,'salaried','hourly')
+FROM   rbc_employees;
+

@@ -1,0 +1,73 @@
+/* SINGLE-ROW FUNCTIONS ADDING LOGIC TO SQL STATEMENTS */
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for adding logic                                                */
+/*    DECODE   Adds if-then-else logic to a query                            */
+/*    CASE     Adds if-then-else logic to a query                            */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*    DECODE(exp1, cmp1, res1 [ , cmp2 , res2 [ ... ] ] )                    */
+/*    CASE exp1 WHEN cmp1 THEN res1                                          */
+/*             [WHEN cmp2 THEN res2                                          */
+/*             [... ] ]                                                      */
+/*             [ELSE other]                                                  */
+/*             END                                                           */
+/*                                                                           */
+/* Parameters:                                                               */
+/*    exp1     An expression                                                 */
+/*    cmp1     The first value to compare against exp1                       */
+/*    res1     The return value if cmp1 matches exp1                         */
+/*    cmp2     [optional] The second value to compare against exp1           */
+/*    res2     [optional] The return value if cmp2 matches exp1              */
+/*    ...      [optional] Addition pairs of cmp/res as needed                */
+/*    other    [optional] The return value when nothing else matches         */
+/*                                                                           */
+/*****************************************************************************/
+SELECT emp_fname, emp_lname, chef_level,
+       DECODE(chef_level,3,'Master Chef',
+                         2,'Chef',
+                         1,'Chef Trainee',
+                         'Not Rated') AS chef_title
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, chef_level
+FROM   rbc_employees
+WHERE  DECODE(chef_level,3,'Master Chef',
+                         2,'Chef',
+                         1,'Chef Trainee',
+                         'Not Rated') = 'Master Chef';
+
+SELECT   emp_fname, emp_lname, chef_level,
+         DECODE(chef_level,3,'Master Chef',
+                           2,'Chef',
+                           1,'Chef Trainee',
+                           'Not Rated') AS chef_title
+FROM     rbc_employees
+WHERE    DECODE(chef_level,3,'Master Chef',
+                           2,'Chef',
+                           1,'Chef Trainee',
+                           'Not Rated') IN ('Master Chef','Chef') 
+ORDER BY DECODE(chef_level,3,'Master Chef',
+                           2,'Chef',
+                           1,'Chef Trainee',
+                           'Not Rated') DESC;
+
+SELECT emp_fname, emp_lname, chef_level,
+       CASE chef_level
+          WHEN 3 THEN 'Master Chef'
+          WHEN 2 THEN 'Chef'
+          WHEN 1 THEN 'Chef Trainee'
+          ELSE 'Not Rated'
+       END AS chef_title
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, chef_level
+FROM   rbc_employees
+WHERE  CASE chef_level
+          WHEN 3 THEN 'Master Chef'
+          WHEN 2 THEN 'Chef'
+          WHEN 1 THEN 'Chef Trainee'
+          ELSE 'Not Rated'
+       END = 'Master Chef';
+
+

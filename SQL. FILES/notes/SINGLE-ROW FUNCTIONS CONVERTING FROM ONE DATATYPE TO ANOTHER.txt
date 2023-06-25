@@ -1,0 +1,109 @@
+/* SINGLE-ROW FUNCTIONS CONVERTING FROM ONE DATATYPE TO ANOTHER */
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for adding logic                                                */
+/*    TO_DATE    Converts a character expression to a date value             */
+/*    TO_NUMBER  Converts a character expression to a number value           */
+/*    TO_CHAR    Converts a date or number to a character value              */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*    TO_DATE( cExpr [ , dFmt ] [ , nls_param ]                              */
+/*    TO_NUMBER( cExpr [ , nFmt ] [ , nls_param ]                            */
+/*    TO_CHAR( nExpr | dExpr [ , cFmt ] [ , nls_param ]                      */
+/*                                                                           */
+/* Parameters:                                                               */
+/*    cExpr       A character expression                                     */
+/*    nExpr       A numeric expression                                       */
+/*    dExpr       A date expression                                          */
+/*    cFmt        [optional] The format of the function return value         */
+/*    nFmt        [optional] The format of the function return value         */
+/*    dFmt        [optional] The format of the function return value         */
+/*    nls_param   [optional] Speficies the character set for return value    */
+/*                                                                           */
+/* Format arguments:                                                         */
+/*                                                                           */
+/*   Date        Description                                                 */
+/*   ----------  ----------------------------------------------------------  */
+/*   MONTH       Name of the month spelled out                               */
+/*   MON         Three-letter abbreviation for the name of the month         */
+/*   MM          Two-digit numeric value for the month                       */
+/*   RM          Roman numeral representing the month                        */
+/*   D           Numeric value for day of the week                           */
+/*   DD          Numeric value for day of the month                          */
+/*   DDD         Numeric value for day of the year 365                       */
+/*   DAY         Name of day of the week                                     */
+/*   DY          Three-letter abbreviation for day of the week               */
+/*   YYYY        Four-digit numeric value for the year                       */
+/*   YYY, YY, Y  Numeric value for last three, two, or single digit of year  */
+/*   YEAR        Spelled-out version of the year                             */
+/*   BC or AD    Value indicating B.C. or A.D.                               */
+/*                                                                           */
+/*   Time        Description                                                 */
+/*   ----------  ----------------------------------------------------------  */
+/*   SS          Seconds                                                     */
+/*   SSSS        Seconds past midnight                                       */
+/*   MI          Minutes                                                     */
+/*   HH, HH12    Hours                                                       */
+/*   A.M., P.M.  Value indicating morning or evening hours                   */
+/*                                                                           */
+/*   Numbers     Description                                                 */
+/*   ----------  ----------------------------------------------------------  */
+/*   9           Use one for each desired digit, suppress leading zeroes     */
+/*   0           Use one for each desired digit, include leading zeroes      */
+/*   $           Displays a floating dollar sign                             */
+/*   .           Displays the decimal point                                  */
+/*   ,           Displays a comma in the designated position                 */
+/*                                                                           */
+/*   Other       Description                                                 */
+/*   ----------  ----------------------------------------------------------  */
+/*   .,! etc.    Displays the indicated punctuation                          */
+/*   "string"    Displays the exact characters inside the double quotes      */
+/*   TH          Use with number format arguments (ordinals: 1st, 2nd, etc.) */
+/*   SP          Use with number format arguments (spells out an number)     */
+/*   SPTH        Use with number format arguments (spells ordinal number)    */
+/*                                                                           */
+/*****************************************************************************/
+SELECT *
+FROM   rbc_employees
+WHERE  hire_date = TO_DATE('05-09-2012','MM-DD-YYYY');
+
+SELECT *
+FROM   rbc_employees
+WHERE  hire_date = TO_DATE('May 9, 2012 AD','MONTH DD, YYYY AD');
+
+SELECT emp_fname, emp_lname, emp_id,
+       TO_NUMBER(emp_id, '9999'),
+       TO_NUMBER(emp_id, '0000')
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, job_title,
+       TO_CHAR(salary,'$999,999.99'),
+       TO_CHAR(hourly_wage,'$999.99')
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, job_title,
+       TO_CHAR(NVL2(salary,salary,hourly_wage*2000),'$999,999.99') AS "Annual Pay"
+FROM   rbc_employees;
+
+SELECT emp_fname, emp_lname, job_title,
+       TO_CHAR(hire_date,'YYYY') AS "Birth Year",
+       TO_CHAR(hire_date,'DAY') AS "Day of Week"
+FROM   rbc_employees;
+
+SELECT INITCAP(emp_fname) || ' ' || INITCAP(emp_lname) || ', ' ||               /* Build full name                       */
+       INITCAP(job_title) ||                                                    /* add current job title                 */
+       ', was hired on a ' || INITCAP( RTRIM( TO_CHAR(hire_date,'DAY'))) ||     /* add weekday of hire                   */
+       ' in the month of ' || INITCAP( RTRIM( TO_CHAR(hire_date,'MONTH'))) ||   /* add month of hire                     */
+       ' in the year ' || TO_CHAR(hire_date,'YYYY') ||                          /* add year of hire                      */
+       CASE                                                                     /* add referring employee if appropriate */
+          WHEN referred_by IS NULL THEN '. '
+          ELSE ', at the recommendation of employee# ' || 
+               TRIM( TO_CHAR(referred_by,'9999')) || '. '
+       END ||
+       INITCAP(emp_fname) || ' is currently ' ||                                /* add age                               */
+          LTRIM( TO_CHAR((current_date - birth_date)/365, '999') ) || 
+          ' years old' ||
+       NVL2(chef_level, ', and has attained the level of ' ||                   /* add chef level if appropriate         */
+          DECODE(chef_level, 3,'Master Chef', 2,'Chef', 1, 'Chef Trainee'),
+          NULL) || '.' AS "Employement Story"
+FROM   rbc_employees;

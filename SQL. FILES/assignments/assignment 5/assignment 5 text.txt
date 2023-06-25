@@ -1,0 +1,45 @@
+/*Create a list that displays the title of each book and the name and phone number of the contact at the publisher’s office for reordering each book.*/
+/*Erik Zander*/
+
+SELECT title, publisher.contact, publisher.phone
+FROM publisher, books;
+
+
+/*2 Produce a list of all customers who live in the state of Florida and have ordered books about computers.  List each customer only once.*/
+SELECT DISTINCT cn.lastname|| ', ' || cn.firstname AS customername, books.category
+FROM customers cn, books
+WHERE cn.state = 'FL'
+AND books.category = 'COMPUTER';
+
+
+
+
+
+/*3 An EMPLOYEES table was added to the JustLee Books database to track employee information. Display a list of each employee’s name, job title,
+and manager’s name. Use column aliases to clearly identify employee and manager name values. Include all employees in the list and sort by manager name.*/
+SELECT mgr AS "Manager", lname || ', '||fname AS "Employee Name", job AS "Job Title"
+FROM employees
+ORDER BY mgr;
+
+
+/*4 The Marketing Department of JustLee Books is preparing for its annual sales promotion. Each customer who places an order during the promotion will 
+receive a free gift with each book purchased. Each gift will be based on the book’s retail price. JustLee Books also participates in co-op advertising
+programs with certain publishers. If the publisher’s name is included in advertisements, JustLee Books is reimbursed a certain percentage of the 
+advertisement costs. To determine the projected costs of this year’s sales promotion, the Marketing Department needs the publisher’s name, profit amount, 
+and free gift description for each book in the JustLee Books inventory.  (Hint: use a non-equality join to look up them ‘gift’ from the promotion table using 
+the retail column in the books table.)*/
+SELECT pblr.name, bks.retail AS Profit, promo.gift
+FROM publisher pblr, books bks, promotion promo
+WHERE bks.retail <= promo.maxretail AND bks.retail >= promo.minretail;
+
+
+
+/*5 Also, the Marketing Department is analyzing books that don’t sell. A list of ISBNs for all books with no sales recorded is needed. 
+(Hint: Build a query to list ISBNs of all book.  Then build a second query to list ISBNs of books sold.  Use the MINUS set operator to “subtract” the results
+of the second query from the results of the first query.)*/
+SELECT bks.isbn
+FROM books bks
+MINUS
+SELECT oi.isbn 
+FROM orderitems oi;
+

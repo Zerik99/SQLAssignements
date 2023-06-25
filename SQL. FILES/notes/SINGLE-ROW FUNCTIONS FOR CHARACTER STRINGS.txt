@@ -1,0 +1,220 @@
+/* SINGLE-ROW FUNCTIONS FOR CHARACTER STRINGS */
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for changing case of character expressions                      */
+/*   LOWER    Returns a specified character expression in lowercase letters  */
+/*   UPPER    Returns a specified character expression in uppercase letters  */
+/*   INITCAP  Returns a specified character expression with the first letter */
+/*            of each word in uppercase and remaining letters in lowercase   */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   LOWER(cExp)                                                             */
+/*   UPPER(cExp)                                                             */
+/*   INITCAP(cExp)                                                           */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   cExp   The given character expression                                   */
+/*                                                                           */
+/*****************************************************************************/
+/* Example in a SELECT clause                                                */
+SELECT pay_type, LOWER(pay_type), UPPER(pay_type), INITCAP(pay_type)
+FROM   rbc_employees;
+
+/* Example in a WHERE clause                                                 */
+SELECT *
+FROM   rbc_employees
+WHERE  LOWER(pay_type) = 'salary';
+
+/* Example in an ORDER BY clause                                             */
+SELECT   *
+FROM     rbc_employees
+ORDER BY LOWER(pay_type); 
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for padding character expressions                               */
+/*   LPAD Pads a character expression to the left with specified characters  */
+/*   RPAD Pads a character expression to the right with specified characters */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   LPAD(cExp1, n [, cExp2])                                                */
+/*   RPAD(cExp1, n [, cExp2])                                                */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   cExp1   A character expression to be padded                             */
+/*   n       A number indicating the length (in characters) of the string    */
+/*           to be returned after padding.  Can exceed length of cExp1.      */
+/*   cExp2   [optional] The character string that is used for padding.       */
+/*           The default is a space.                                         */ 
+/*                                                                           */
+/*****************************************************************************/
+/* Example in a SELECT clause                                                */
+SELECT pay_type, 
+       LPAD(pay_type,10,'*'), RPAD(pay_type,10,'*'),
+       LPAD(pay_type,10), RPAD(pay_type,10)
+FROM   rbc_employees;
+
+/* It is possible to use in WHERE and ORDER BY as well, but not that useful  */
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for trimming character expressions                              */
+/*   LTRIM   Removes specified characters from the left side of expression   */
+/*   RTRIM   Removes specified characters from the right side of expression  */
+/*   TRIM    Removes specified characters from either side of expression     */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   LTRIM(cExp [, trim_set ])                                               */
+/*   RTRIM(cExp [, trim_set ])                                               */
+/*   TRIM( [ [ LEADING | TRAILING | BOTH ] [ trim_char] [ FROM ] ] cExp      */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   cExp       A character expression to be trimmed                         */
+/*   trim_set   [optional] A string of 1 or more characters to be trimmed    */
+/*              from cExp                                                    */
+/*   trim_char  [optional] A character to be trimmed from cExp               */
+/*   LEADING    [optional] Indicates that trim_char should be trimmed from   */
+/*              left side of cExp                                            */
+/*   TRAILING   [optional] Indicates that trim_char should be trimmed from   */
+/*              right side of cExp                                           */
+/*   BOTH       [optional] Indicates that trim_char should be trimmed from   */
+/*              both left and right side fo cExp                             */
+/*                                                                           */
+/*****************************************************************************/
+SELECT LTRIM('   aaaaa   ') AS Lt, 
+       RTRIM('   aaaaa   ') AS Rt,
+       TRIM(LEADING FROM  '   aaaaa   ') AS TrL,
+       TRIM(TRAILING FROM '   aaaaa   ') AS TrT,
+       TRIM(BOTH FROM '   aaaaa   ') AS TrB
+FROM   DUAL;
+
+
+SELECT LTRIM('XYZaaaaaXYZ', 'XYZ') AS Lt, 
+       RTRIM('XYZaaaaaXYZ', 'XYZ') AS Rt,
+       TRIM(LEADING 'X' FROM 'XYZaaaaaXYZ') AS Trl,
+       TRIM(TRAILING 'Z' FROM 'XYZaaaaaXYZ') AS TrT,
+       TRIM(BOTH 'X' FROM 'XYZaaaaaXYZ') AS TrBX,
+       TRIM(BOTH 'Z' FROM 'XYZaaaaaXYZ') AS TrBZ
+FROM   DUAL;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for working with substrings of character strings                */
+/*   INSTR    Finds the location of a substring within a character expression*/
+/*   SUBSTR   Extracts a substring from within a character expression        */
+/*   REPLACE  Replaces a substring with another substring in an expression   */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   INSTR(cExp, subStr, [, pos [, nth ] ] )                                 */
+/*   SUBSTR(cExp, pos [, len ])                                              */
+/*   REPLACE(cExp, subStr [,replStr])                                        */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   cExp     A character expression to search within for a substring        */
+/*   pos      [optional for INSTR] An integer indicating starting position   */
+/*            (default = 1)                                                  */
+/*   nth      An integer representing nth appearance of subStr (default = 1) */
+/*   len      An integer indicating the number of characters to extract      */
+/*            (default = to end of character expression)                     */
+/*   replStr  A string to replace SubStr (default = NULL)                    */
+/*                                                                           */
+/*****************************************************************************/
+SELECT job_title, 
+       INSTR(job_title,'Manager'),
+       INSTR(job_title,'Manager',5),
+       INSTR(job_title,'Manager',10),
+       INSTR(job_title,'Manager',15)
+FROM   rbc_employees;
+
+SELECT 'abc abc abc abc',
+       INSTR('abc abc abc abc','abc',1,1),
+       INSTR('abc abc abc abc','abc',1,2),
+       INSTR('abc abc abc abc','abc',1,3),
+       INSTR('abc abc abc abc','abc',1,4)
+FROM   DUAL;
+
+SELECT *
+FROM   rbc_employees
+WHERE  INSTR(job_title,'Manager') > 0;
+
+SELECT job_title,
+       SUBSTR(job_title,5),
+       SUBSTR(job_title,5,6) 
+FROM   rbc_employees;
+
+SELECT job_title,
+       REPLACE(job_title,'Manager'),
+       REPLACE(job_title,'Manager','Top dog')
+FROM   rbc_employees;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Functions for working with NULLs                                          */
+/*   NULLIF    Compares two expressions.  Returns NULL if equal, otherwise   */
+/*             it returns the first expression.                              */
+/*   NVL       Provides a meaningful alternative to a NULL value             */
+/*   NVL2      Extention of NVL.  In addition to providing an alternative to */
+/*             a null value, NVL2 also provieds alternatives to non-NULL     */
+/*             values                                                        */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   NULLIF(exp1, exp2a)                                                     */
+/*   NVL(exp1, exp2b)                                                        */
+/*   NVL2(exp1, exp2c, exp3)                                                 */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   exp1     First value to compare.  Must be same datatype as exp2.        */
+/*   exp2a    Second value to compare.  Must be same datatype as exp1.       */
+/*   exp2b    An expression to return when exp1 is NULL                      */
+/*   exp2c    An expression to return wiht exp1 is not NULL                  */
+/*   exp3     An expression to return when exp1 is NULL                      */
+/*                                                                           */
+/*****************************************************************************/
+
+SELECT job_title,
+       NULLIF(job_title,'Cook')
+FROM   rbc_employees;
+
+SELECT referred_by,
+       NVL(referred_by,'Not referred by anyone')
+FROM   rbc_employees;
+
+SELECT referred_by,
+       NVL2(referred_by,'Was referred','Not referred by anyone')
+FROM   rbc_employees;
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/* Miscellaneous other functions for character expressions                   */
+/*   CONCAT    Concatenates two character expressions. Similar to using '||' */
+/*   LENGTH    Returns the length of a character expression (number of chars)*/
+/*   SOUNDEX   Returns a phonetic representation of a character expression   */
+/*                                                                           */
+/* Syntax:                                                                   */
+/*   CONCAT(cExp1,cExp2)                                                     */
+/*   LENGTH(cExp1)                                                           */
+/*   SOUNDEX(cExp1)                                                          */
+/*                                                                           */
+/* Parameters:                                                               */
+/*   cExp1     Any character expression                                      */
+/*   cExp2     Any character expression                                      */
+/*                                                                           */
+/*****************************************************************************/
+SELECT emp_lname, 
+       CONCAT('+++',emp_lname)
+FROM   rbc_employees;
+
+SELECT emp_lname,
+       LENGTH(emp_lname)
+FROM   rbc_employees;
+
+SELECT *
+FROM   rbc_employees
+WHERE  SOUNDEX(emp_lname) = SOUNDEX('lee');
+
+
